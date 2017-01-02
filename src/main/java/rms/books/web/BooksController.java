@@ -34,4 +34,14 @@ public class BooksController {
         logger.debug("addNewBook: saving book={}", book);
         booksService.addNewBook(book);
     }
+
+    @RequestMapping(method = RequestMethod.GET, path = "/books")
+    public Iterable<Book> getAllBooks() {
+        return booksService.getAllBooks();
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE, path = "/books/{isbn}")
+    public void deleteBook(@PathVariable String isbn) {
+        booksService.deleteBook(isbn);
+    }
 }

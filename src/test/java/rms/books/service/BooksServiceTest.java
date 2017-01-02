@@ -54,6 +54,13 @@ public class BooksServiceTest {
     }
 
     @Test
+    public void getAllBooksDelegatesToDao() {
+        when(dao.findAll()).thenReturn(books);
+        assertThat(serviceUnderTest.getAllBooks()).isEqualTo(books);
+        verify(dao).findAll();
+    }
+
+    @Test
     public void addBookDelegatesToDao() {
         serviceUnderTest.addNewBook(book);
         verify(dao).save(book);
@@ -61,7 +68,8 @@ public class BooksServiceTest {
 
     @Test
     public void deleteBookDelegatesToDao() {
-        serviceUnderTest.deleteBook(book);
-        verify(dao).delete(book);
+        String isbn = "12345";
+        serviceUnderTest.deleteBook(isbn);
+        verify(dao).delete(isbn);
     }
 }

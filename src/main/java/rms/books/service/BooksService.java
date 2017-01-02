@@ -29,7 +29,11 @@ public class BooksService {
         dao.save(book);
     }
 
-    public void deleteBook(Book book) {
-        dao.delete(book);
+    public void deleteBook(String isbn) {
+        dao.delete(isbn);
+    }
+
+    public Iterable<Book> getAllBooks() {
+        return dao.findAll();
     }
 }

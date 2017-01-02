@@ -1,10 +1,8 @@
 package rms.books.entity;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import java.time.LocalDate;
 
 /**
  * Yeah, a book.
@@ -41,6 +39,7 @@ public class Book {
         this.author = author;
     }
 
+    @Column(unique = true)
     public String getIsbn() {
         return isbn;
     }
