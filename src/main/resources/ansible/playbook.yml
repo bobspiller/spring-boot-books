@@ -1,0 +1,107 @@
+---
+- hosts: all
+  remote_user: root
+
+  vars:
+    java_archive: jdk-8u121-linux-x64.tar.gz
+    java_dir: jdk1.8.0_121
+    app_version: @project.version@
+    server_port: 8080
+    management_port: 8081
+
+  tasks:
+    - name: ensure ntpd is at the latest version
+      yum: pkg=ntp state=latest
+      become: yes
+      become_method: sudo
+      notify:
+      - restart ntpd
+
+    - name: Make JAVA_HOME base directory
+      become: yes
+      become_method: sudo
+      file: path=/opt/java
+            state=directory
+            mode=0755
+
+    - name: Install JDK
+      become: yes
+      become_method: sudo
+      unarchive:
+            src=@user.home@/distros/{{ java_archive }}
+            dest=/opt/java/
+
+    - name: Make JAVA_HOME sym link
+      become: yes
+      become_method: sudo
+      file: src=/opt/java/{{ java_dir }}
+            dest=/opt/java/current
+            state=link
+
+    - name: Create application directory
+      become: yes
+      become_method: sudo
+      file: path=/app/books
+            state=directory
+            owner=vagrant
+            group=vagrant
+            mode=0770
+
+    - name: Install books application
+      copy: src=../../books-{{ app_version }}.jar
+            dest=/app/books/
+            owner=vagrant
+            group=vagrant
+            mode=0660
+
+    - name: Install books startup script
+      template:
+            src=bin/startup.sh
+            dest=/app/books/
+            owner=vagrant
+            group=vagrant
+            mode=770
+
+    - name: Install books environment script
+      template:
+            src=bin/setenv.sh
+            dest=/app/books/
+            owner=vagrant
+            group=vagrant
+            mode=770
+
+    - name: Install books application configuration
+      template:
+            src=application.j2
+            dest=/app/books/application.properties
+            owner=vagrant
+            group=vagrant
+            mode=0600
+
+    - name: Install systemd service definition
+      become: yes
+      become_method: sudo
+      copy: src=books.service
+            dest=/usr/lib/systemd/system/
+            mode=0644
+
+    - name: Enable the systemd books service
+      become: yes
+      become_method: sudo
+      service:
+            name=books
+            enabled=yes
+
+    - name: Reload systemd units and restart books service
+      become: yes
+      become_method: sudo
+      systemd:
+        state: restarted
+        daemon_reload: yes
+        name: books
+
+  handlers:
+    - name: restart ntpd
+      become: yes
+      become_method: sudo
+      service: name=ntpd state=restarted

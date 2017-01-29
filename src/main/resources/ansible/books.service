@@ -1,0 +1,11 @@
+[Unit]
+Description=Books Service
+After=syslog.target
+
+[Service]
+User=vagrant
+ExecStart=/app/books/startup.sh
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target
